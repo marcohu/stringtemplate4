@@ -373,4 +373,24 @@ public class TestRenderers extends BaseTest {
 
 		assertEquals("12 de Junho de 2012", st.render(new Locale("pt")));
 	}
+
+    @Test public void testStringRendererWithFormatUppercaseCamel() throws Exception {
+        String templates =
+                "foo(x) ::= << <x; format=\"Camel\"> >>\n";
+
+        writeFile(tmpdir, "t.stg", templates);
+        STGroup group = new STGroupFile(tmpdir+"/t.stg");
+        group.registerRenderer(String.class, new StringRenderer());
+        ST st = group.getInstanceOf("foo");
+        st.add("x", "HTML_INLINE_TAG");
+        assertEquals(" HtmlInlineTag ", st.render());
+
+        st.remove("x");
+        st.add("x", "HTMLINLINETAG");
+        assertEquals(" Htmlinlinetag ", st.render());
+
+        st.remove("x");
+        st.add("x", "htmlInlineTag");
+        assertEquals(" HtmlInlineTag ", st.render());
+    }
 }

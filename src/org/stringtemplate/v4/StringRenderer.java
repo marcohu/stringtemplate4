@@ -30,6 +30,8 @@ package org.stringtemplate.v4;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Locale;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /** This render knows to perform a few format operations on {@link String} objects:
  * <ul>
@@ -48,6 +50,7 @@ public class StringRenderer implements AttributeRenderer {
         if ( formatString==null ) return s;
         if ( formatString.equals("upper") ) return s.toUpperCase(locale);
         if ( formatString.equals("lower") ) return s.toLowerCase(locale);
+        if ( formatString.equals("Camel") ) return toUpperCamelCase(s, locale);
         if ( formatString.equals("cap") ) {
             return (s.length() > 0) ? Character.toUpperCase(s.charAt(0))+s.substring(1) : s;
         }
@@ -98,6 +101,33 @@ public class StringRenderer implements AttributeRenderer {
                     else buf.append(c);
             }
         }
+        return buf.toString();
+    }
+
+    private static final Pattern UPPER_CAMEL = Pattern.compile(
+        "((?:^|_)(?:\\p{javaUpperCase}|\\p{javaLowerCase}))(\\p{javaUpperCase}*)");
+
+    private static String toUpperCamelCase(String s, Locale locale)
+    {
+        Matcher matcher = UPPER_CAMEL.matcher(s);
+
+        StringBuffer buf = new StringBuffer(s.length());
+
+        while (matcher.find())
+        {
+            if (matcher.start() == 0)
+            {
+                matcher.appendReplacement(buf, matcher.group(1).toUpperCase(locale) + matcher.group(2).toLowerCase(locale));
+            }
+            else
+            {
+                matcher.appendReplacement(buf,
+                    matcher.group(1).substring(1).toUpperCase(locale) + matcher.group(2).toLowerCase(locale));
+            }
+        }
+
+        matcher.appendTail(buf);
+
         return buf.toString();
     }
 }
