@@ -123,6 +123,9 @@ public class StringRenderer implements AttributeRenderer {
         }
         matcher.appendTail(buf);
 
-        return buf.toString();
+        String name = buf.toString();
+
+        // we can't override getClass()
+        return "Class".equals(name) ? "class" : name;
     }
 }
